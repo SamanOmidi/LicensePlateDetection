@@ -1,6 +1,5 @@
 from ultralytics import YOLO
 from plate import rotate, shear, make_plate
-import imutils
 import cv2
 
 def detect_plate(model: YOLO, image_src: str):
@@ -25,17 +24,17 @@ def plate(result, image_src: str):
 
 def main():
     model = YOLO("../models/plate-detector.pt")
-    image_src = "cars/L2P_153_jpg.rf.fe183bacc99247562dffe5091d5d5f45.jpg"
-    # image_src = "cars/car-2.jpg"
+    # image_src = "cars/L2P_153_jpg.rf.fe183bacc99247562dffe5091d5d5f45.jpg"
+    image_src = "cars/11.jpg"
     result = detect_plate(model, image_src)
     plate(result, image_src)
     flag = rotate("output/result.jpg")
     if flag:
-        shear("output/blured.jpg")
+        shear("output/blurred.jpg")
         # make_plate("output/sheared.jpg")
-        make_plate("output/blured.jpg")
+        make_plate("output/blurred.jpg")
     else:
-        make_plate("output/blured.jpg")
+        make_plate("output/blurred.jpg")
 
 
 if __name__ == "__main__":

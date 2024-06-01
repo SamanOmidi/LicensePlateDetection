@@ -1,25 +1,57 @@
 import cv2
+import numpy as np
+import functools
 
 image_src = "output/plate.png"
+
 image = cv2.imread(image_src)
+
+# # Convert image so keras can read it
+# image = cv2.resize(image, (64,64))
+# image = image[...,::-1].astype(np.float32) / 255.0
+# # Convert to grayscale
+# gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 height, width = image.shape[:2]
 
-# First number -> 53 - 93
-first_number = image[0:height, 53:93]
-# Second number -> 94 - 140
-second_number = image[0:height, 92:138]
-# Letter -> 140 - 203
-letter = image[0:height, 140:203]
-# Third number -> 203 - 245
-third_number = image[0:height, 203:245]
-# Fourth number -> 245 - 280
-fourth_number = image[0:height, 245:280]
-# Fifth number -> 280 - 324
-fifth_number = image[0:height, 280:324]
+h1 = 30
+h2 = height - 30
+
+# First number
+first_number = image[h1:h2, 125:185]
+# Second number
+second_number = image[h1:h2, 185:270]
+# Letter
+letter = image[h1:h2, 275:400]
+# Third number
+third_number = image[h1:h2, 400:480]
+# Fourth number
+fourth_number = image[h1:h2, 490:560]
+# Fifth number
+fifth_number = image[h1:h2, 555:640]
+
+import keras
+# Load model
+model = keras.models.load_model("models/full_model.h5")
+
+classes = ["0", "1", "2", "3", "4", "5", "6",
+           "7", "8", "9", "alef", "be", "dal", "ghaf",
+           "he", "je", "lam", "mim", "noon", "pe", "ain",
+           "pwd", "sad", "sin", "ta", "taxi", "vav", "ye"]
 
 l = [first_number, second_number, letter, third_number, fourth_number, fifth_number]
+plate = ""
 for img in l:
     cv2.imshow("img", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    cv2.imwrite("letters/letter.jpg", img)
+    img = keras.preprocessing.image.load_img("letters/letter.jpg", target_size=(64, 64), color_mode="grayscale")
+    img_array = keras.preprocessing.image.img_to_array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    predictions = model.predict(img_array)
+    predicted_class = np.argmax(predictions, axis=1)
+    print(predicted_class)
+    plate += classes[predicted_class[0]]    
+
+print(plate)

@@ -1,4 +1,3 @@
-import easyocr
 from hezar.models import Model
 
 def main():
@@ -7,7 +6,7 @@ def main():
     # for (bbox, text, prob) in result:
     #     print(f'Text: {text}, Probability: {prob}')
     model = Model.load("hezarai/crnn-fa-64x256-license-plate-recognition")
-    plate_text = model.predict("output/blured.jpg")
+    plate_text = model.predict("output/blurred.jpg")
     print(plate_text)
 
 

@@ -70,7 +70,7 @@ def rotate(image_src: str):
                                     M=rotate_matrix,
                                     dsize=(width, height))
 
-        cv2.imwrite("output/blured.jpg", rotated_image)
+        cv2.imwrite("output/blurred.jpg", rotated_image)
         return True
     else:
         print("ERROR: No lines found.")
