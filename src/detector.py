@@ -6,7 +6,7 @@ def detect_plate(model: YOLO, image_src: str):
     # TODO Check results and take the closest object
     # results = model(image_src)
     # For now we only take the first element
-    result = model(image_src)[0]
+    result = model(image_src, device="cpu")[0]
     return result
     
 
@@ -25,7 +25,7 @@ def plate(result, image_src: str):
 def main():
     model = YOLO("../models/plate-detector.pt")
     # image_src = "cars/L2P_153_jpg.rf.fe183bacc99247562dffe5091d5d5f45.jpg"
-    image_src = "cars/11.jpg"
+    image_src = "cars/car-4.jpg"
     result = detect_plate(model, image_src)
     plate(result, image_src)
     flag = rotate("output/result.jpg")
