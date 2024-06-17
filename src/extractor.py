@@ -1,25 +1,37 @@
-# from hezar.models import Model
 from ultralytics import YOLO
+import numpy as np
+
+
+def find_order(predicted_classes, original_xyxy, sorted_xyxy):
+    l = []
+    sorted_xyxy = np.array(sorted_xyxy)
+    original_xyxy = np.array(original_xyxy)
+    for t in sorted_xyxy:
+        for i in range(len(original_xyxy)):
+            check = np.equal(t, original_xyxy[i])
+            if False in check:
+                continue
+            else:
+                l.append(predicted_classes[i])
+                break
+    return l
+
 
 def main():
-    # reader = easyocr.Reader(['fa'])
-    # result = reader.readtext('result.jpg')
-    # for (bbox, text, prob) in result:
-    #     print(f'Text: {text}, Probability: {prob}')
-    # model = Model.load("hezarai/crnn-fa-64x256-license-plate-recognition")
-    model = YOLO("../models/best.pt")
-    # plate_text = model.predict("output/blurred.jpg")
-    results = model("output/plate.png", device="cpu")
-    print(len(results))
-    # print(plate_text)
-    for result in results:
-        boxes = result.boxes  # Boxes object for bounding box outputs
-        masks = result.masks  # Masks object for segmentation masks outputs
-        keypoints = result.keypoints  # Keypoints object for pose outputs
-        probs = result.probs  # Probs object for classification outputs
-        obb = result.obb  # Oriented boxes object for OBB outputs
-        result.show()  # display to screen
-        # result.save(filename="result.jpg")  # save to disk
+    model = YOLO("../models/char_detector.pt")
+    names = model.names
+    result = model("output/plate.png", device="cpu", agnostic_nms=True)[0]
+    # result = model("output/temp.jpg", device="cpu", agnostic_nms=True)[0]
+    result.show()
+    # Sort the predictions from left to right based on the x-coordinate of the bounding box
+    predicted_classes = result.boxes.cls.to('cpu').tolist()
+    original_xyxy = list(result.boxes.xyxy)
+    sorted_xyxy = list(sorted(result.boxes.xyxy, key=lambda x: x[0]))
+    order = find_order(predicted_classes, original_xyxy, sorted_xyxy)
+    plate = ""
+    for i in range(6):
+        plate += names[order[i]] + ' '
+    print(plate)
 
 
 if __name__ == "__main__":

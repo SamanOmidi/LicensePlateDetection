@@ -2,14 +2,9 @@ import cv2
 import math
 import numpy as np
 import imutils
+import math
 
-def rotate(image_src: str):
-    image = cv2.imread(image_src)
-
-    # Resize the image based on resolution
-    # We don't don anything to the images till we get the resolution of the
-    # original image which is not determined at the moment
-
+def rotate(image):
     # Convert to gray
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -70,20 +65,65 @@ def rotate(image_src: str):
                                     M=rotate_matrix,
                                     dsize=(width, height))
 
-        cv2.imwrite("output/blurred.jpg", rotated_image)
-        return True
+        # cv2.imwrite("output/blurred.jpg", rotated_image)
+        print("Rotation applied to the image.\n")
+        return rotated_image
     else:
-        print("ERROR: No lines found.")
-        return False
+        print("No rotation applied to the image.\n")
+        return image
 
 
-# TODO Check if the plate image need shearing
+def rotate_yaxis(image):
+    proj2dto3d = np.array([[1, 0, -image.shape[1]/2],
+                           [0, 1, -image.shape[0]/2],
+                           [0, 0, 0],
+                           [0, 0, 1]], np.float32)
+    
+    ry = np.array([[1, 0, 0, 0],
+                   [0, 1, 0, 0],
+                   [0, 0, 1, 0],
+                   [0, 0, 0, 1]], np.float32)
+    
+    trans = np.array([[1, 0, 0, 0],
+                      [0, 1, 0, 0],
+                      [0, 0, 1, 300],
+                      [0, 0, 0, 1]], np.float32)
 
-def shear(image_src: str):
-    pass
+    proj3dto2d = np.array([[200, 0, image.shape[1]/2, 0],
+                           [0, 200, image.shape[0]/2, 0],
+                           [0, 0, 1, 0]], np.float32)    
+    
+    y = 8.0
+
+    ay = float(y * (math.pi / 180.0))
+
+    ry[0, 0] = math.cos(ay)
+    ry[0, 2] = -math.sin(ay)
+    ry[2, 0] = math.sin(ay)
+    ry[2, 2] = math.cos(ay)
+
+    r = ry
+
+    final = proj3dto2d.dot(trans.dot(r.dot(proj2dto3d)))
+    dst = cv2.warpPerspective(image, final, (image.shape[1], image.shape[0]), None,
+                               cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, (255,255,255))
+    
+    cv2.imwrite("output/temp.jpg", dst)
+    cv2.imshow("dst", dst)
+    cv2.waitKey(0)
+    return dst
 
 # Change plate to a specific size for later classification
 def make_plate(image_src: str):
     image = cv2.imread(image_src)
-    resized_image = imutils.resize(image, width=420, height=110)
+    image = rotate(image)
+    # image = rotate_yaxis(image)
+    resized_image = imutils.resize(image, width=640, height=640)
     cv2.imwrite("output/plate.png", resized_image)
+
+# img = cv2.imread("cars/20240611_145825.jpg")
+img = cv2.imread("output/result.jpg")
+resized_image = imutils.resize(img, width=820, height=820)
+cv2.imshow("image", resized_image)
+cv2.waitKey(0)
+rotate_yaxis(resized_image)

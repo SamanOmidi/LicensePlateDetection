@@ -18,17 +18,17 @@ h1 = 30
 h2 = height - 30
 
 # First number
-first_number = image[h1:h2, 125:185]
+first_number = image[h1:h2, 85:145]
 # Second number
-second_number = image[h1:h2, 185:270]
+second_number = image[h1:h2, 145:215]
 # Letter
-letter = image[h1:h2, 275:400]
+letter = image[h1:h2, 215:300]
 # Third number
-third_number = image[h1:h2, 400:480]
+third_number = image[h1:h2, 300:370]
 # Fourth number
-fourth_number = image[h1:h2, 490:560]
+fourth_number = image[h1:h2, 370:430]
 # Fifth number
-fifth_number = image[h1:h2, 555:640]
+fifth_number = image[h1:h2, 430:490]
 
 import keras
 # Load model
@@ -36,7 +36,7 @@ model = keras.models.load_model("models/full_model.h5")
 
 classes = ["0", "1", "2", "3", "4", "5", "6",
            "7", "8", "9", "alef", "be", "dal", "ghaf",
-           "he", "je", "lam", "mim", "noon", "pe", "ain",
+           "he", "je", "lam", "mim", "non", "pe", "ain",
            "pwd", "sad", "sin", "ta", "taxi", "vav", "ye"]
 
 l = [first_number, second_number, letter, third_number, fourth_number, fifth_number]
@@ -52,6 +52,6 @@ for img in l:
     predictions = model.predict(img_array)
     predicted_class = np.argmax(predictions, axis=1)
     print(predicted_class)
-    plate += classes[predicted_class[0]]    
+    plate += classes[predicted_class[0]] + ' '
 
 print(plate)
