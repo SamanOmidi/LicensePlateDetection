@@ -17,12 +17,11 @@ def find_order(predicted_classes, original_xyxy, sorted_xyxy):
     return l
 
 
-def main():
+def extract(plate_src: str):
     model = YOLO("../models/char_detector.pt")
     names = model.names
-    result = model("output/plate.png", device="cpu", agnostic_nms=True)[0]
-    # result = model("output/temp.jpg", device="cpu", agnostic_nms=True)[0]
-    result.show()
+    result = model(plate_src, device="cpu", agnostic_nms=True)[0]
+    result.save("output/extracted.jpg")
     # Sort the predictions from left to right based on the x-coordinate of the bounding box
     predicted_classes = result.boxes.cls.to('cpu').tolist()
     original_xyxy = list(result.boxes.xyxy)
@@ -31,8 +30,5 @@ def main():
     plate = ""
     for i in range(6):
         plate += names[order[i]] + ' '
-    print(plate)
-
-
-if __name__ == "__main__":
-    main()
+    
+    return plate

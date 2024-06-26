@@ -2,7 +2,7 @@ import cv2
 import math
 import numpy as np
 import imutils
-import math
+
 
 def rotate(image):
     # Convert to gray
@@ -65,7 +65,7 @@ def rotate(image):
                                     M=rotate_matrix,
                                     dsize=(width, height))
 
-        # cv2.imwrite("output/blurred.jpg", rotated_image)
+        cv2.imwrite("output/xrotated.jpg", rotated_image)
         print("Rotation applied to the image.\n")
         return rotated_image
     else:
@@ -108,22 +108,12 @@ def rotate_yaxis(image):
     dst = cv2.warpPerspective(image, final, (image.shape[1], image.shape[0]), None,
                                cv2.INTER_LINEAR, cv2.BORDER_CONSTANT, (255,255,255))
     
-    cv2.imwrite("output/temp.jpg", dst)
-    cv2.imshow("dst", dst)
-    cv2.waitKey(0)
+    cv2.imwrite("output/yrotated.jpg", dst)
     return dst
 
 # Change plate to a specific size for later classification
-def make_plate(image_src: str):
-    image = cv2.imread(image_src)
-    image = rotate(image)
-    # image = rotate_yaxis(image)
-    resized_image = imutils.resize(image, width=640, height=640)
+def make_plate(cropped_image):
+    xrotated_image = rotate(cropped_image)
+    yrotated_image = rotate_yaxis(xrotated_image)
+    resized_image = imutils.resize(yrotated_image, width=640, height=640)
     cv2.imwrite("output/plate.png", resized_image)
-
-# img = cv2.imread("cars/20240611_145825.jpg")
-img = cv2.imread("output/result.jpg")
-resized_image = imutils.resize(img, width=820, height=820)
-cv2.imshow("image", resized_image)
-cv2.waitKey(0)
-rotate_yaxis(resized_image)
